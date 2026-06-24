@@ -16,13 +16,14 @@ import json
 import re
 import subprocess
 import sys
+import os
 from pathlib import Path
 
 LLAMA_BENCH = Path("BONUS-llama-cpp-optimization/llama.cpp/build/bin/llama-bench")
 LLAMA_BENCH_EXE = LLAMA_BENCH.with_suffix(".exe")
 
-# llama-bench prints a markdown-ish table; this regex grabs the tg128 (decode) row.
-TG_RE = re.compile(r"\|\s*tg128\s*\|\s*([0-9.]+)\s*±")
+# llama-bench prints a markdown-ish table; this regex grabs the decode throughput row.
+TG_RE = re.compile(r"\|\s*tg\d+\s*\|\s*([0-9.]+)\s*±")
 
 
 def find_bench() -> Path:
@@ -73,8 +74,11 @@ def main() -> int:
     bench = find_bench()
     model = load_active()
     hw = load_hw()
-    backends = hw.get("gpu", {}).get("backends", {})
-    n_gpu = 99 if any(v for k, v in backends.items() if k != "cpu_only") else 0
+    if "LAB_N_GPU_LAYERS" in os.environ:
+        n_gpu = int(os.environ["LAB_N_GPU_LAYERS"])
+    else:
+        backends = hw.get("gpu", {}).get("backends", {})
+        n_gpu = 99 if any(v for k, v in backends.items() if k != "cpu_only") else 0
 
     grid = thread_grid(hw)
     print(f"==> thread sweep on {Path(model).name}")

@@ -31,10 +31,10 @@ Run `locust -f 02-llama-cpp-server/load-test.py --headless -u N -r 1 -t 1m` for 
 
 | Concurrency | RPS | TTFB P50 (ms) | E2E P95 (ms) | E2E P99 (ms) | Failures |
 |--:|--:|--:|--:|--:|--:|
-| 10 | | | | | |
-| 50 | | | | | |
+| 10 | 0.31 | 25000 | 31000 | 31000 | 0 |
+| 50 | 0.46 | 26000 | 41000 | 41000 | 0 |
 
-**Continuous-batching observation:** _peak `llamacpp:n_busy_slots_per_decode` / `requests_processing` from `record-metrics.py` was _ at concurrency 50, which means…_
+**Continuous-batching observation:** _peak `llamacpp:n_busy_slots_per_decode` / `requests_processing` from `record-metrics.py` was 3.91 / 4 at concurrency 50, which means the native server saturated all slots and queued extra requests instead of failing._
 
 ## Track 03 — Milestone Integration
 
